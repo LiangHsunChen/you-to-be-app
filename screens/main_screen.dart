@@ -5,6 +5,7 @@ import '../models/todo_item.dart';
 import '../models/milestone_item.dart';
 import 'tasks_screen.dart';
 import 'inspiration_screen.dart';
+import '../api_keys.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -132,7 +133,10 @@ class _MainScreenState extends State<MainScreen> {
         onEditMilestone: _editMilestone,
         onRemoveMilestone: _removeMilestone,
       ),
-      InspirationScreen(milestoneItems: _milestoneItems, apiKey: 'AIzaSyC1XT8DJ8bqMuI0MEkbinySGgFop5xFdGM'),
+      InspirationScreen(
+        milestoneItems: _milestoneItems,
+        apiKey: youtubeApiKey,
+      ),
     ];
     return Scaffold(
       appBar: AppBar(
