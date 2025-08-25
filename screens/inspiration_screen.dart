@@ -15,6 +15,36 @@ class InspirationScreen extends StatefulWidget {
 
 class _InspirationScreenState extends State<InspirationScreen> with AutomaticKeepAliveClientMixin<InspirationScreen> {
   @override
+  void didUpdateWidget(InspirationScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Remove videos and state for deleted milestones
+    final oldTitles = oldWidget.milestoneItems.map((m) => m.title).toSet();
+    final newTitles = widget.milestoneItems.map((m) => m.title).toSet();
+    final removed = oldTitles.difference(newTitles);
+    bool changed = false;
+    for (final title in removed) {
+      if (_milestoneVideos.containsKey(title)) {
+        _milestoneVideos.remove(title);
+        changed = true;
+      }
+      if (_milestoneLoading.containsKey(title)) {
+        _milestoneLoading.remove(title);
+        changed = true;
+      }
+      if (_milestoneError.containsKey(title)) {
+        _milestoneError.remove(title);
+        changed = true;
+      }
+    }
+    // If any were removed and we're in shuffle mode, rebuild the shuffle list
+    if (changed && _mixedMode) {
+      _shuffledVideos = _milestoneVideos.values.expand((v) => v).toList();
+      _shuffledVideos.shuffle();
+      setState(() {});
+    }
+  }
+  List<YoutubeVideo> _shuffledVideos = [];
+  @override
   bool get wantKeepAlive => true;
 
   void _showUrlDialog(String url) {
@@ -82,6 +112,14 @@ class _InspirationScreenState extends State<InspirationScreen> with AutomaticKee
             onPressed: () {
               setState(() {
                 _mixedMode = !_mixedMode;
+                if (_mixedMode) {
+                  // Always rebuild from current milestones
+                  _shuffledVideos = _milestoneVideos.entries
+                      .where((entry) => widget.milestoneItems.any((m) => m.title == entry.key))
+                      .expand((entry) => entry.value)
+                      .toList();
+                  _shuffledVideos.shuffle();
+                }
               });
             },
           ),
@@ -203,14 +241,11 @@ class _InspirationScreenState extends State<InspirationScreen> with AutomaticKee
   }
 
   Widget _buildMixedList() {
-    // Combine all videos and shuffle
-    final allVideos = _milestoneVideos.values.expand((v) => v).toList();
-    allVideos.shuffle();
     return ListView.builder(
       padding: const EdgeInsets.all(8.0),
-      itemCount: allVideos.length,
+      itemCount: _shuffledVideos.length,
       itemBuilder: (context, index) {
-        final video = allVideos[index];
+        final video = _shuffledVideos[index];
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
           elevation: 2,
