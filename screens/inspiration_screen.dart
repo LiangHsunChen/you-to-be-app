@@ -63,6 +63,15 @@ class _InspirationScreenState extends State<InspirationScreen> with AutomaticKee
   @override
   Widget build(BuildContext context) {
   super.build(context);
+    if (widget.milestoneItems.isEmpty) {
+      return const Center(
+        child: Text(
+          'Add some milestones to see related videos here!',
+          style: TextStyle(color: Colors.white70, fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -73,15 +82,6 @@ class _InspirationScreenState extends State<InspirationScreen> with AutomaticKee
       // Fetch videos if not already fetched
       _fetchVideos();
       return const Center(child: CircularProgressIndicator());
-    }
-    if (widget.milestoneItems.isEmpty) {
-      return const Center(
-        child: Text(
-          'Add some milestones to see related videos here!',
-          style: TextStyle(color: Colors.white70, fontSize: 16),
-          textAlign: TextAlign.center,
-        ),
-      );
     }
     return Scaffold(
       appBar: AppBar(
